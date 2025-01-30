@@ -5,12 +5,15 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faClock, faCog, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
 const API_URL = 'http://localhost:5005/v1';
 
 function Tasks() {
+
+
+
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -93,12 +96,26 @@ function Tasks() {
     navigate('/');
   };
 
+// Estado de los iconos 
+const statusIcons = {
+  Pendiente: faClock,
+  'En Progreso': faCog,
+  Completada: faCheck
+};
+
+const statusColors = {
+  Pendiente: 'danger', // Rojo
+  'En Progreso': 'warning', // Amarillo
+  Completada: 'success' // Verde
+};
+
+  const handleStatusChange = (id, newStatus) => {
+    updateTask(id, newStatus);
+  };
   return (
-    
     <div>
-        <Button onClick={logout}>Cerrar Sesión</Button>
-      <h1>Gestión de Tareas </h1>
-      
+      <Button onClick={logout}>Cerrar Sesión</Button>
+      <h1>Gestión de Tareas</h1>
       
       <Card className='p-3 mt-3'>
         <Card.Body>
@@ -125,21 +142,35 @@ function Tasks() {
       </Card>
 
       <h3 className='mt-4'>Mis Tareas</h3>
-      {tasks.length == 0 ? <p>No hay tareas registradas.</p> : (
+      {tasks.length === 0 ? (
+        <p>No hay tareas registradas.</p>
+      ) : (
         tasks.map(task => (
-          <Card key={task._id} className='p-3 mt-2'>
+          <Card key={task._id} className="task-card">
             <Card.Body>
               <h5>{task.title}</h5>
               <p>{task.description}</p>
-              <Form.Select 
-                value={task.status} 
-                onChange={(e) => updateTask(task._id, e.target.value)}
-              >
-                <option>Pendiente</option>
-                <option>En Progreso</option>
-                <option>Completada</option>
-              </Form.Select>
-              <Button variant="danger" className="mt-2" onClick={() => deleteTask(task._id)}>Eliminar</Button>
+              <div className="task-actions">
+                {/* Iconos de estado */}
+                {['Pendiente', 'En Progreso', 'Completada'].map(status => (
+                  <Button
+                    key={status}
+                    variant={task.status === status ? statusColors[status] : `outline-${statusColors[status]}`}
+                    size="sm"
+                    onClick={() => handleStatusChange(task._id, status)}
+                    className="status-button"
+                  >
+                    <FontAwesomeIcon icon={statusIcons[status]} />
+                  </Button>
+                ))}
+                <Button 
+                  variant="danger" 
+                  size="sm" 
+                  className="delete-btn"
+                  onClick={() => deleteTask(task._id)}>
+                  <FontAwesomeIcon icon={faTrash} />
+                </Button>
+              </div>
             </Card.Body>
           </Card>
         ))

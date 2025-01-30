@@ -66,3 +66,90 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+/* Estilo para las tarjetas de tareas */
+.task-card {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Título de la tarea */
+.task-card h5 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Descripción de la tarea */
+.task-card p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Estilo para los botones y el selector de estado */
+.task-card .task-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px; /* Menos espacio entre los elementos */
+}
+
+/* Aseguramos que el botón de eliminar se alinee a la derecha */
+.task-card .task-actions .delete-btn {
+  margin-left: auto; /* Esto empuja el botón a la derecha */
+  font-size: 0.8rem;
+  padding: 5px 10px;
+}
+
+/* Contenedor general de las tareas */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espaciado entre tareas */
+}
+
+/* Estilo para el formulario de agregar tarea */
+.form-control {
+  font-size: 0.9rem;
+}
+
+.form-select {
+  font-size: 0.9rem;
+}
+
+
+/* Estilo para los botones con íconos */
+.task-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+/* Botones de estado */
+.status-button {
+  margin-right: 5px;
+  font-size: 1.2rem; /* Tamaño del ícono */
+  padding: 5px;
+  border-radius: 50%;
+}
+
+/* Botón de eliminar */
+.delete-btn {
+  margin-left: auto;
+}
+
+/* Espaciado general de las tareas */
+.task-card {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
