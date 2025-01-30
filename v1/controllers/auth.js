@@ -45,41 +45,48 @@ export async function Register(req, res) {
 }
 
 
+import jwt from "jsonwebtoken"; // Asegúrese de instalarlo con `npm install jsonwebtoken`
+
+const JWT_SECRET = "mi_clave_secreta"; // Use una clave segura en variables de entorno
+
 export async function Login(req, res) {
-    // Get variables for the login process
-    const { email } = req.body;
+    const { email, password } = req.body;
+
     try {
-        // Check if user exists
+        // Buscar usuario
         const user = await User.findOne({ email }).select("+password");
         if (!user)
             return res.status(401).json({
                 status: "failed",
                 data: [],
-                message:
-                    "Invalid email or password. Please try again with the correct credentials.",
+                message: "Invalid email or password.",
             });
-        // if user exists
-        // validate password
-        const isPasswordValid = await bcrypt.compare(
-            `${req.body.password}`,
-            user.password
-        );
-        // if not valid, return unathorized response
+
+        // Validar contraseña
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid)
             return res.status(401).json({
                 status: "failed",
                 data: [],
-                message:
-                    "Invalid email or password. Please try again with the correct credentials.",
+                message: "Invalid email or password.",
             });
-        // return user info except password
-        const { password, ...user_data } = user._doc;
 
+        // Generar el token
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role }, 
+            JWT_SECRET,
+            { expiresIn: "1h" } // Expira en 1 hora
+        );
+
+        // Devolver usuario y token
+        const { password: _, ...user_data } = user._doc;
         res.status(200).json({
             status: "success",
             data: [user_data],
+            token,  // 🔹 Ahora devuelve el token
             message: "You have successfully logged in.",
         });
+
     } catch (err) {
         res.status(500).json({
             status: "error",
@@ -88,5 +95,5 @@ export async function Login(req, res) {
             message: "Internal Server Error",
         });
     }
-    res.end();
 }
+

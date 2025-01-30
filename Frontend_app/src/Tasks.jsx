@@ -15,6 +15,7 @@ function Tasks() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('Pendiente');
+  const [userId, setUserId] = useState('6799b19255c7c559a5b5dc7d');
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -28,12 +29,20 @@ function Tasks() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`${API_URL}/tasks`, {
+      const response = await axios.get(`${API_URL}/tasks/ObtenerTodos`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setTasks(response.data.data);
+  
+      // Verifica si la respuesta tiene el formato esperado
+      if (Array.isArray(response.data.data)) {
+        setTasks(response.data.data); // Asume que las tareas están en response.data.data
+      } else {
+        console.error("La respuesta no es un arreglo", response.data);
+        setTasks([]); // Asegura que tasks sea siempre un arreglo
+      }
     } catch (error) {
       console.error("Error al obtener tareas", error);
+      setTasks([]); // Asegura que tasks sea siempre un arreglo
     }
   };
 
@@ -43,7 +52,7 @@ function Tasks() {
       return;
     }
     try {
-      await axios.post(`${API_URL}/tasks`, { title, description, status }, {
+      await axios.post(`${API_URL}/tasks/Agregar`, { title, description, status, userId}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTitle('');
@@ -57,25 +66,27 @@ function Tasks() {
 
   const updateTask = async (id, newStatus) => {
     try {
-      await axios.put(`${API_URL}/tasks/${id}`, { status: newStatus }, {
+      await axios.put(`${API_URL}/tasks/Actualizar/${id}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchTasks();
+      fetchTasks(); // Refrescar las tareas después de la actualización
     } catch (error) {
       console.error("Error al actualizar tarea", error);
     }
   };
+  
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`${API_URL}/tasks/${id}`, {
+      await axios.delete(`${API_URL}/tasks/Eliminar/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchTasks();
+      fetchTasks(); // Refrescar las tareas después de eliminar
     } catch (error) {
       console.error("Error al eliminar tarea", error);
     }
   };
+  
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -114,7 +125,7 @@ function Tasks() {
       </Card>
 
       <h3 className='mt-4'>Mis Tareas</h3>
-      {tasks.length === 0 ? <p>No hay tareas registradas.</p> : (
+      {tasks.length == 0 ? <p>No hay tareas registradas.</p> : (
         tasks.map(task => (
           <Card key={task._id} className='p-3 mt-2'>
             <Card.Body>
