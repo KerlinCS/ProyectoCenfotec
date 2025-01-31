@@ -1,12 +1,11 @@
+/* Global reset and styles */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,21 +17,24 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
 
-body {
+body, html {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  height: 100%; /* Asegura que body ocupe todo el alto */
+  width: 100%;  /* Asegura que body ocupe todo el ancho */
+  display: flex; /* Usamos flexbox para distribuir el contenido */
+  flex-direction: column; /* Alinea los elementos de arriba hacia abajo */
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  text-align: center; /* Centrado opcional para el título */
 }
 
 button {
@@ -46,9 +48,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -59,97 +63,12 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }
-}
-/* Estilo para las tarjetas de tareas */
-.task-card {
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Título de la tarea */
-.task-card h5 {
-  font-size: 1rem;
-  margin: 0;
-}
-
-/* Descripción de la tarea */
-.task-card p {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-/* Estilo para los botones y el selector de estado */
-.task-card .task-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 5px; /* Menos espacio entre los elementos */
-}
-
-/* Aseguramos que el botón de eliminar se alinee a la derecha */
-.task-card .task-actions .delete-btn {
-  margin-left: auto; /* Esto empuja el botón a la derecha */
-  font-size: 0.8rem;
-  padding: 5px 10px;
-}
-
-/* Contenedor general de las tareas */
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Espaciado entre tareas */
-}
-
-/* Estilo para el formulario de agregar tarea */
-.form-control {
-  font-size: 0.9rem;
-}
-
-.form-select {
-  font-size: 0.9rem;
-}
-
-
-/* Estilo para los botones con íconos */
-.task-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 5px;
-}
-
-/* Botones de estado */
-.status-button {
-  margin-right: 5px;
-  font-size: 1.2rem; /* Tamaño del ícono */
-  padding: 5px;
-  border-radius: 50%;
-}
-
-/* Botón de eliminar */
-.delete-btn {
-  margin-left: auto;
-}
-
-/* Espaciado general de las tareas */
-.task-card {
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
 }

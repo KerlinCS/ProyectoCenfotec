@@ -31,27 +31,35 @@ function Login() {
   }
 
   return (
-    <div className=''>
-      <h1>Autenticacion del Sistema</h1>
-      <Card className='p-3 w-100'>
-        <Card.Body>
-          <Form className='d-flex flex-column gap-4'>
-            <Form.Control
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)
-              } />
-            <Form.Control
-              placeholder="Password"
-              value={password}
-              type='password'
-              onChange={(e) => setPassword(e.target.value)
-              } />
-            <Button onClick={login}>Iniciar Sesion</Button>
-            <Button onClick={() => navigate("/register")}>Crear Usuario</Button>
-          </Form>
-        </Card.Body>
-      </Card>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="text-center">Autenticación del Sistema</h1>
+        <Card className="p-4">
+          <Card.Body>
+            <Form className="d-flex flex-column gap-4">
+              <Form.Control
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+              />
+              <Form.Control
+                placeholder="Password"
+                value={password}
+                type="password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+              />
+              <Button onClick={login} className="btn-primary w-100">
+                Iniciar Sesión
+              </Button>
+              <Button onClick={() => navigate("/register")} className="btn-secondary w-100 mt-3">
+                Crear Usuario
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -84,39 +92,49 @@ function Register() {
   }
 
   return (
-    <div className=''>
-    <h1>Registro de Usuario</h1>
-    <Card className='p-3 w-100'>
-      <Card.Body>
-        <Form className='d-flex flex-column gap-4'>
-          <Form.Control
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)
-            } />
-          <Form.Control
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)
-            } />
-          <Form.Control
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)
-            } />
-          <Form.Control
-            placeholder="Password"
-            value={password}
-            type='password'
-            onChange={(e) => setPassword(e.target.value)
-            } />
-          <Button onClick={register}>Crear Cuenta</Button>
-          <Button onClick={() => navigate("/")}>Volver al Login</Button>
-        </Form>
-      </Card.Body>
-    </Card>
-  </div>
-  )
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="text-center">Registro de Usuario</h1>
+        <Card className="p-4">
+          <Card.Body>
+            <Form className="d-flex flex-column gap-4">
+              <Form.Control
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="input-field"
+              />
+              <Form.Control
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="input-field"
+              />
+              <Form.Control
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+              />
+              <Form.Control
+                placeholder="Password"
+                value={password}
+                type="password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+              />
+              <Button onClick={register} className="btn-primary w-100">
+                Crear Cuenta
+              </Button>
+              <Button onClick={() => navigate("/")} className="btn-secondary w-100 mt-3">
+                Volver al Login
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      </div>
+    </div>
+  );
 }
 
 function ProtectedPage() {
