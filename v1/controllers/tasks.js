@@ -116,7 +116,7 @@ export const getAllTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
     const { id } = req.params; // ID de la tarea
-    const { status } = req.body; // Nuevo estado
+    const { title, description, status } = req.body; // Datos a actualizar
     const userId = req.userId; // ID del usuario autenticado desde el token
 
     try {
@@ -127,8 +127,11 @@ export const updateTask = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Tarea no encontrada o no pertenece al usuario' });
         }
 
-        // Actualizar la tarea
-        task.status = status;
+        // Actualizar los valores solo si se proporcionan en el request
+        if (title !== undefined) task.title = title;
+        if (description !== undefined) task.description = description;
+        if (status !== undefined) task.status = status;
+
         await task.save();
 
         res.json({ success: true, message: 'Tarea actualizada correctamente', data: task });
@@ -136,6 +139,7 @@ export const updateTask = async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al actualizar tarea', error: error.message });
     }
 };
+
 
   
   // Función para eliminar una tarea

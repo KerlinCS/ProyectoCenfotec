@@ -178,6 +178,8 @@ button:focus {
   background-color: #c0392b;  /* Cambia a un tono más oscuro al pasar el mouse */
 }
 
+
+
 /* Estilo para el botón de logout */
 .logout-button {
   position: absolute;

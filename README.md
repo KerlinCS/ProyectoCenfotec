@@ -142,7 +142,7 @@ Respuesta exitosa:
 Actualizar una Tarea
 Método: PUT
 Ruta: /api/tasks/Actualizar/:id
-Descripción: Actualiza el estado de una tarea.
+Descripción: Actualiza el estado, título o descripción de una tarea.
 Headers:
 Authorization: Bearer <jwt_token>
 Cuerpo de la solicitud:

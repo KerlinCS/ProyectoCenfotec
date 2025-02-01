@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faClock, faCog, faCheck, faTrash, faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPencil, faTrash, faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import { Row, Col, Modal } from 'react-bootstrap';  // Importamos el Modal
 import Swal from 'sweetalert2';
 
@@ -25,6 +25,8 @@ function Tasks() {
   const [showModal, setShowModal] = useState(false);  // Estado para mostrar el modal
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const [editingTask, setEditingTask] = useState(null);
+
 
   useEffect(() => {
     if (!token) {
@@ -94,16 +96,51 @@ function Tasks() {
     }
   };
 
-  const updateTask = async (id, newStatus) => {
+  const updateTask = async (id) => {
+    if (!title || !description) {
+      Swal.fire({
+        title: 'Falta información',
+        text: 'El título y la descripción son obligatorios.',
+        icon: 'error',
+        confirmButtonText: 'Cerrar'
+      });
+      return;
+    }
+  
     try {
-      await axios.put(`${API_URL}/tasks/Actualizar/${id}`, { status: newStatus }, {
+      await axios.put(`${API_URL}/tasks/Actualizar/${id}?action=ActualizarTarea`, {
+        title,
+        description,
+        status
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchTasks();
+  
+      fetchTasks();  // Recargar la lista de tareas actualizadas
+      closeModal();  // Cerrar el modal y limpiar los datos
     } catch (error) {
       console.error("Error al actualizar tarea", error);
     }
   };
+  
+  
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setTitle(task.title);
+    setDescription(task.description);
+    setStatus(task.status);
+    setShowModal(true);
+  };
+  
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingTask(null);
+    setTitle('');
+    setDescription('');
+    setStatus('Pendiente');
+  };
+  
+
 
   const deleteTask = async (id) => {
     try {
@@ -122,9 +159,6 @@ function Tasks() {
     navigate('/');
   };
 
-
-
-
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
   const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
@@ -132,7 +166,6 @@ function Tasks() {
   const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
 
   return (
-    <body style={{backgroundColor:'rgb(236, 236, 236)'}}>
     <div style={{ padding: '20px' }}>
       <h1>Gestión de Tareas</h1>
 
@@ -151,8 +184,6 @@ function Tasks() {
 
       <Col md={4} className="p-3">
       {/* Listado de tareas */}
-     
-  
 
     {filteredTasks.length > 0 && (
             <div style={{marginTop:'20px'}} className="pagination, juntos-vertical">
@@ -222,6 +253,15 @@ function Tasks() {
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
+                  <Button
+                    
+                    size="sm"
+                    className="edit-btn"
+                    onClick={() => handleEditTask(task)}
+                  >
+                  <FontAwesomeIcon icon={faPencil} />                  
+                  </Button>
+
                 </div>
               </Card.Body>
             </Card>
@@ -231,44 +271,52 @@ function Tasks() {
     )}
   </Col>
 
-
-
       {/* Modal para crear tarea */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Nueva Tarea</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Control
-              placeholder="Título"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <Form.Control
-              placeholder="Descripción"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option>Pendiente</option>
-              <option>En Progreso</option>
-              <option>Completada</option>
-            </Form.Select>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cerrar
-          </Button>
-          <Button variant="primary" onClick={addTask}>
-            Guardar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Modal show={showModal} onHide={closeModal}>
+  <Modal.Header closeButton>
+    <Modal.Title>{editingTask ? 'Editar Tarea' : 'Nueva Tarea'}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Control
+        placeholder="Título"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <Form.Control
+        placeholder="Descripción"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <option>Pendiente</option>
+        <option>En Progreso</option>
+        <option>Completada</option>
+      </Form.Select>
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={closeModal}>
+      Cerrar
+    </Button>
+    <Button
+      variant="primary"
+      onClick={() => {
+        if (editingTask) {
+          updateTask(editingTask._id);
+        } else {
+          addTask();
+        }
+      }}
+    >
+      {editingTask ? 'Actualizar' : 'Guardar'}
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
 
     </div>
-    </body>
   );
 }
 
