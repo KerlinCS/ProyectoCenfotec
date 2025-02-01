@@ -2,8 +2,25 @@ import express from "express";
 import { Register, Login } from "../controllers/auth.js";
 import Validate from "../middleware/validate.js";
 import { check } from "express-validator";
+import User from "../models/User.js"; // Asegúrate de importar el modelo de usuario
 
 const router = express.Router();
+
+// Verificar si el email ya está registrado -- GET request
+router.get("/check-email", async (req, res) => {
+    try {
+        const { email } = req.query; // Obtener el email de la URL
+        if (!email) {
+            return res.status(400).json({ message: "Email es requerido" });
+        }
+
+        const user = await User.findOne({ email }); // Buscar en la base de datos
+        return res.json({ exists: !!user }); // Retorna { exists: true } si el email existe
+    } catch (error) {
+        console.error("Error al verificar email:", error);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
 
 // Register route -- POST request
 router.post(
@@ -15,13 +32,13 @@ router.post(
     check("first_name")
         .not()
         .isEmpty()
-        .withMessage("You first name is required")
+        .withMessage("Your first name is required")
         .trim()
         .escape(),
     check("last_name")
         .not()
         .isEmpty()
-        .withMessage("You last name is required")
+        .withMessage("Your last name is required")
         .trim()
         .escape(),
     check("password")
@@ -32,8 +49,7 @@ router.post(
     Register
 );
 
-
-// Login route == POST request
+// Login route -- POST request
 router.post(
     "/login",
     check("email")
@@ -44,6 +60,5 @@ router.post(
     Validate,
     Login
 );
-
 
 export default router;

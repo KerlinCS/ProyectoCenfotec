@@ -6,7 +6,9 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faClock, faCog, faCheck, faTrash, faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Modal } from 'react-bootstrap';  // Importamos el Modal
+import Swal from 'sweetalert2';
+
 
 const API_URL = 'http://localhost:5005/v1';
 
@@ -17,8 +19,10 @@ function Tasks() {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('Pendiente');
   const [currentPage, setCurrentPage] = useState(1);
-  const [tasksPerPage] = useState(2);
+  const [tasksPerPage] = useState(9);
   const [filterStatus, setFilterStatus] = useState('Todos');
+  const [username, setUsername] = useState('');
+  const [showModal, setShowModal] = useState(false);  // Estado para mostrar el modal
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -27,6 +31,12 @@ function Tasks() {
       navigate('/');
       return;
     }
+
+    const user = localStorage.getItem('user');
+    if (user) {
+      setUsername(user);
+    }
+
     fetchTasks();
   }, [token]);
 
@@ -46,7 +56,7 @@ function Tasks() {
 
       if (Array.isArray(response.data.data)) {
         setTasks(response.data.data);
-        setFilteredTasks(response.data.data);  // Inicializamos con todas las tareas
+        setFilteredTasks(response.data.data);
       } else {
         console.error("La respuesta no es un arreglo", response.data);
         setTasks([]);
@@ -61,7 +71,13 @@ function Tasks() {
 
   const addTask = async () => {
     if (!title || !description) {
-      alert("Debe ingresar título y descripción");
+      Swal.fire({
+        title: 'Falta información',
+        text: 'El título y la descripción son obligatorios.',
+        icon: 'error',
+        confirmButtonText: 'Cerrar'
+      });
+      
       return;
     }
     try {
@@ -72,6 +88,7 @@ function Tasks() {
       setDescription('');
       setStatus('Pendiente');
       fetchTasks();
+      setShowModal(false);  // Cerrar el modal después de agregar la tarea
     } catch (error) {
       console.error("Error al agregar tarea", error);
     }
@@ -82,7 +99,7 @@ function Tasks() {
       await axios.put(`${API_URL}/tasks/Actualizar/${id}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchTasks();  // Vuelve a cargar las tareas después de la actualización
+      fetchTasks();
     } catch (error) {
       console.error("Error al actualizar tarea", error);
     }
@@ -101,22 +118,13 @@ function Tasks() {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/');
   };
 
-  const statusIcons = {
-    Pendiente: faClock,
-    'En Progreso': faCog,
-    Completada: faCheck
-  };
 
-  const statusColors = {
-    Pendiente: 'danger',
-    'En Progreso': 'warning',
-    Completada: 'success'
-  };
 
-  // Lógica de paginación
+
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
   const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
@@ -124,116 +132,143 @@ function Tasks() {
   const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
 
   return (
-    <div style={{padding: '20px' }}>
+    <body style={{backgroundColor:'rgb(236, 236, 236)'}}>
+    <div style={{ padding: '20px' }}>
       <h1>Gestión de Tareas</h1>
-      <Button className="logout-button" onClick={logout}>Cerrar Sesión</Button>
-      
-      <Row>
-        {/* Columna para Nueva tarea */}
-        <Col md={4} className="p-3">
-          <Card className="p-3">
-            <Card.Body>
-              <h3 className="text-center">Nueva tarea</h3>
-              <Form className="d-flex flex-column gap-2">
-                <Form.Control
-                  placeholder="Título"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <Form.Control
-                  placeholder="Descripción"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-                <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
-                  <option>Pendiente</option>
-                  <option>En Progreso</option>
-                  <option>Completada</option>
-                </Form.Select>
-                <Button onClick={addTask} className='add-button'>
-                  <FontAwesomeIcon icon={faPlus} />
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={6} className="p-3">
-        <div className="pagination">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
-        >
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </Button>
-        <span>  {currentPage} de {totalPages} </span>
-        <Button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
-          <FontAwesomeIcon icon={faChevronRight} />
-        </Button>
 
-        <Col md={1.5} className=" p-3">
-          <h3 className="mt-4">Filtrar tareas</h3>
-          <Form.Select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="Todos">Todos</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="En Progreso">En Progreso</option>
-            <option value="Completada">Completada</option>
-          </Form.Select>
-          
-        </Col>
+      <div className="d-flex justify-content-between align-items-center">
+        <Button className="logout-button" onClick={logout}>Cerrar Sesión</Button>
       </div>
-        </Col>
-      </Row>
-
       <Row>
-  <Col md={12} className="p-3">
-    <h3 className="mt-4">Mis Tareas</h3>
+      <Col md={4} className="p-3">
+  <div className='juntos-vertical' style={{ justifyContent: 'flex-start' }}>
+    <h3 className="mt-4" style={{marginLeft:'15px'}}>Mis Tareas</h3>
+    <Button onClick={() => setShowModal(true)} className='add-button' style={{ marginLeft: '10px', marginTop: '20px', borderRadius:'50%' }}>
+      <FontAwesomeIcon icon={faPlus} />
+    </Button>
+  </div>
+</Col>
+
+      <Col md={4} className="p-3">
+      {/* Listado de tareas */}
+     
+  
+
+    {filteredTasks.length > 0 && (
+            <div style={{marginTop:'20px'}} className="pagination, juntos-vertical">
+              <Button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
+                <FontAwesomeIcon icon={faChevronLeft} />
+              </Button>
+              <span>{currentPage} de {totalPages}</span>
+              <Button
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={() => setCurrentPage(currentPage + 1)}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </Button>
+            </div>
+          )}
+    </Col>
+    <Col md={4} className="p-3">
+    
+
+<div className='juntos-vertical'>
+            <h3 className="mt-4" >Filtrar tareas</h3>
+            <Form.Select style={{width:'200px', marginLeft:'10px',marginTop:'20px'}}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="Todos">Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En Progreso">En Progreso</option>
+              <option value="Completada">Completada</option>
+            </Form.Select>
+         </div>
+          </Col>
+          </Row>
+          <Col md={12} className="p-3">
     {currentTasks.length === 0 ? (
       <p>No hay tareas registradas.</p>
     ) : (
-      currentTasks.map((task) => (
-        <Card key={task._id} className="task-card mb-3" style={{ width: '100%' }}>
-          <Card.Body>
-            <h5>{task.title}</h5>
-            <p>{task.description}</p>
-            <div className="task-actions">
-              {/* Selector para cambiar el estado */}
-              <Form.Select
-                value={task.status}
-                onChange={(e) => updateTask(task._id, e.target.value)}  // Llamada a la función updateTask para cambiar el estado
-                size="sm"
-                style={{ width: '150px' }}
-              >
-                <option value="Pendiente">Pendiente</option>
-                <option value="En Progreso">En Progreso</option>
-                <option value="Completada">Completada</option>
-              </Form.Select>
+      // Ajustar el mapeo para que las tareas se distribuyan en 2 columnas y 3 filas
+      <Row className="g-3">
+        {currentTasks.map((task) => (
+          <Col md={4} key={task._id}>  {/* 4 columnas en pantallas medianas => 2 columnas en pantallas grandes */}
+            <Card className="task-card mb-3" style={{ width: '100%' }}>
+              <Card.Body>
+              <h5 style={{ textAlign: 'center' }}>{task.title}</h5>
+              <p>{task.description}</p>
+                <div className="task-actions">
+                  {/* Selector para cambiar el estado */}
+                  <Form.Select
+                    value={task.status}
+                    onChange={(e) => updateTask(task._id, e.target.value)}  // Cambiar estado de tarea
+                    size="sm"
+                    style={{ width: '150px' }}
+                  >
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En Progreso">En Progreso</option>
+                    <option value="Completada">Completada</option>
+                  </Form.Select>
 
-              {/* Botón para eliminar la tarea */}
-              <Button
-                variant="danger"
-                size="sm"
-                className="delete-btn"
-                onClick={() => deleteTask(task._id)}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
-      ))
+                  {/* Botón para eliminar tarea */}
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="delete-btn"
+                    onClick={() => deleteTask(task._id)}  // Eliminar tarea
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
     )}
   </Col>
-</Row>
 
 
+
+      {/* Modal para crear tarea */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Nueva Tarea</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Control
+              placeholder="Título"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <Form.Control
+              placeholder="Descripción"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option>Pendiente</option>
+              <option>En Progreso</option>
+              <option>Completada</option>
+            </Form.Select>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cerrar
+          </Button>
+          <Button variant="primary" onClick={addTask}>
+            Guardar
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </div>
+    </body>
   );
 }
 
