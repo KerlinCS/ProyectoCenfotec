@@ -122,6 +122,22 @@ function Tasks() {
       console.error("Error al actualizar tarea", error);
     }
   };
+
+  const updateTaskStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`${API_URL}/tasks/ActualizarEstado/${id}?action=ActualizarEstado`, {
+        status: newStatus  // Enviar el nuevo estado
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
+      fetchTasks();  // Recargar la lista de tareas actualizadas
+    } catch (error) {
+      console.error("Error al actualizar tarea", error);
+    }
+  };
+  
+  
   
   
   const handleEditTask = (task) => {
@@ -235,7 +251,7 @@ function Tasks() {
                   {/* Selector para cambiar el estado */}
                   <Form.Select
                     value={task.status}
-                    onChange={(e) => updateTask(task._id, e.target.value)}  // Cambiar estado de tarea
+                    onChange={(e) => updateTaskStatus(task._id, e.target.value)}  // Cambiar estado de tarea
                     size="sm"
                     style={{ width: '150px' }}
                   >
